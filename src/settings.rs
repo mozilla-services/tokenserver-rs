@@ -1,6 +1,4 @@
 //! Application settings objects and initialization
-use std::cmp::min;
-
 use config::{Config, ConfigError, Environment, File};
 use serde::Deserialize;
 use url::Url;

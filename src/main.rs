@@ -1,10 +1,8 @@
 #![warn(rust_2018_idioms)]
 #![allow(clippy::try_err)]
 
-#[macro_use]
-extern crate diesel;
-#[macro_use]
-extern crate diesel_migrations;
+// extern crate diesel;
+// extern crate diesel_migrations;
 #[macro_use]
 extern crate slog_scope;
 

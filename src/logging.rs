@@ -1,13 +1,9 @@
 use std::io;
 
-use crate::error::{ApiErrorKind, ApiResult};
+use crate::error::ApiResult;
 
 use slog::{self, slog_o, Drain};
-use slog_async;
 use slog_mozlog_json::MozLogJson;
-use slog_scope;
-use slog_stdlog;
-use slog_term;
 
 pub fn init_logging(json: bool) -> ApiResult<()> {
     let logger = if json {

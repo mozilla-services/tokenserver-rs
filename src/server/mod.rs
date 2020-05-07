@@ -25,7 +25,7 @@ impl Server {
         let metrics = metrics::metrics_from_opts(&settings)?;
         let port = settings.port;
         let state = ServerState {
-            metrics: Box::new(metrics.clone()),
+            metrics: Box::new(metrics),
             port,
         };
 

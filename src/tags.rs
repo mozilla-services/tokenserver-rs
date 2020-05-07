@@ -11,7 +11,6 @@ use serde::{
     Serialize,
 };
 use serde_json::value::Value;
-use slog;
 
 #[derive(Clone, Debug)]
 pub struct Tags {
@@ -43,6 +42,7 @@ impl Serialize for Tags {
     }
 }
 
+#[allow(dead_code)]
 fn insert_if_not_empty(label: &str, val: &str, tags: &mut HashMap<String, String>) {
     if !val.is_empty() {
         tags.insert(label.to_owned(), val.to_owned());
