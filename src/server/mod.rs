@@ -1,7 +1,5 @@
 //! Main application server
 
-use std::sync::Arc;
-
 use actix_cors::Cors;
 use actix_web::{
     dev, http::StatusCode, middleware::errhandlers::ErrorHandlers, web, App, HttpRequest,
@@ -37,9 +35,8 @@ impl Server {
                 .wrap(ErrorHandlers::new().handler(StatusCode::NOT_FOUND, ApiError::render_404))
                 .wrap(Cors::default())
                 // TODO: Add endpoints and handlers here.
+                //
                 // Dockerflow
-                // Remember to update .::web::middleware::DOCKER_FLOW_ENDPOINTS
-                // when applying changes to endpoint names.
                 //.service(web::resource("/__heartbeat__").route(web::get().to(handlers::heartbeat)))
                 .service(web::resource("/__lbheartbeat__").route(web::get().to(
                     |_: HttpRequest| {

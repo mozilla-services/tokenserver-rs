@@ -102,16 +102,12 @@ impl Tags {
 impl slog::KV for Tags {
     fn serialize(
         &self,
-        _record: &slog::Record,
+        _record: &slog::Record<'_>,
         serializer: &mut dyn slog::Serializer,
     ) -> slog::Result {
-        //TODO: Iterate through the tags and display their values
-        // Note that the implied lifetime of the "title" is static
-        // &str. You probably want to be very explicit about what
-        // tags and values you return here.
-        /*
-        serializer.emit_str("title", &self.tags.get("title"));
-        */
+        for (key, val) in &self.tags {
+            serializer.emit_str(slog::Key::from(key.clone()), &val)?;
+        }
         Ok(())
     }
 }

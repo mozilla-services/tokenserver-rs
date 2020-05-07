@@ -11,9 +11,9 @@ extern crate slog_scope;
 #[macro_use]
 pub mod error;
 pub mod logging;
-pub mod settings;
-pub mod server;
 pub mod metrics;
+pub mod server;
+pub mod settings;
 pub mod tags;
 
 use std::error::Error;
