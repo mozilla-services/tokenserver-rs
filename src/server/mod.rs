@@ -1,6 +1,7 @@
 //! Main application server
 
 mod handlers;
+mod extractors;
 
 use actix_cors::Cors;
 use actix_web::{
