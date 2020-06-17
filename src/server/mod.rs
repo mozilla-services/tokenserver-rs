@@ -1,11 +1,15 @@
 //! Main application server
 
+mod handlers;
+
 use actix_cors::Cors;
 use actix_web::{
     dev, http::StatusCode, middleware::errhandlers::ErrorHandlers, web, App, HttpRequest,
     HttpResponse, HttpServer,
 };
 use cadence::StatsdClient;
+
+use handlers::get_handler;
 
 use crate::error::ApiError;
 use crate::metrics;
@@ -38,6 +42,8 @@ impl Server {
                 //
                 // Dockerflow
                 //.service(web::resource("/__heartbeat__").route(web::get().to(handlers::heartbeat)))
+                .service(web::resource("/1.0/sync/1.5")
+                            .route(web::get().to(get_handler)))
                 .service(web::resource("/__lbheartbeat__").route(web::get().to(
                     |_: HttpRequest| {
                         // used by the load balancers, just return OK.
