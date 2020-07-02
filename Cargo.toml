@@ -36,3 +36,4 @@ slog-stdlog = "4.0"
 slog-term = "2.5"
 url = "2.1"
 uuid = { version = "0.8.1", features = ["serde", "v4"] }
+jsonwebtoken = "7.2.0"

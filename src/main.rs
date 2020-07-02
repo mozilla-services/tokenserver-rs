@@ -13,6 +13,7 @@ pub mod metrics;
 pub mod server;
 pub mod settings;
 pub mod tags;
+pub mod token;
 
 use std::error::Error;
 
