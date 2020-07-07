@@ -10,15 +10,13 @@ async fn test_index() {
     use super::*;
     use actix_web::test;
     let mut app = test::init_service(
-                        App::new().service(
-                        web::resource("/1.0/sync/1.5")
-                        .route(web::post().to(get_handler)))
-                    ).await;
+        App::new().service(web::resource("/1.0/sync/1.5").route(web::get().to(get_handler))),
+    )
+    .await;
 
-    let req = test::TestRequest::post()
-                                    .uri("/1.0/sync/1.5")
-                                    .to_request();
+    let req = test::TestRequest::get().uri("/1.0/sync/1.5").to_request();
     let res = test::call_service(&mut app, req).await;
+    println!("{:?}", res);
 
     assert_eq!(res.status(), 200, "/1.0/sync/1.5 should return 200");
 }
