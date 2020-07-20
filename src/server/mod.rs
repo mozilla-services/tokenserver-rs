@@ -1,11 +1,15 @@
 //! Main application server
 
+mod extractors;
+mod handlers;
 use actix_cors::Cors;
 use actix_web::{
     dev, http::StatusCode, middleware::errhandlers::ErrorHandlers, web, App, HttpRequest,
     HttpResponse, HttpServer,
 };
 use cadence::StatsdClient;
+
+use handlers::get_handler;
 
 use crate::error::ApiError;
 use crate::metrics;
@@ -46,6 +50,7 @@ impl Server {
                             .body("{}")
                     },
                 )))
+                .service(web::resource("/1.0/sync/1.5").route(web::get().to(get_handler)))
                 .service(
                     web::resource("/__version__").route(web::get().to(|_: HttpRequest| {
                         // return the contents of the version.json file created by circleci
