@@ -8,6 +8,7 @@ extern crate slog_scope;
 
 #[macro_use]
 pub mod error;
+pub mod config;
 pub mod logging;
 pub mod metrics;
 pub mod server;
