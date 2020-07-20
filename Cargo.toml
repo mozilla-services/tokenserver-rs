@@ -12,6 +12,7 @@ actix-web = "2"
 actix-rt = "1"
 actix-cors = "0.2"
 cadence = "0.19.1"
+chrono = "0.4.13"
 config = "0.9.3"
 docopt = "1.1"
 diesel = { version = "1.4.3", features = ["mysql", "r2d2"] }
@@ -20,6 +21,7 @@ diesel_migrations = { version = "1.4.0", features = ["mysql"] }
 env_logger = "0.7.1"
 failure = "0.1"
 futures = { version = "0.3", features = ["compat"] }
+jsonwebtoken = "7.2.0"
 lazy_static = "1.4.0"
 log = { version = "0.4.8", features = ["max_level_info", "release_max_level_info"] }
 sentry = { version = "0.18", features = ["with_curl_transport"] }
@@ -34,5 +36,6 @@ slog-mozlog-json = "0.1"
 slog-scope = "4.3"
 slog-stdlog = "4.0"
 slog-term = "2.5"
+thiserror = "1.0.20"
 url = "2.1"
 uuid = { version = "0.8.1", features = ["serde", "v4"] }
