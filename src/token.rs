@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::convert::From;
 use thiserror::Error;
 
+use crate::oauth::Key;
 use crate::settings;
 
 #[derive(Error, Debug)]
@@ -14,7 +15,7 @@ pub enum TokenError {
     #[error("Token is Invalid")]
     InvalidToken,
     #[error("Issuer is Invalid")]
-    InvalidIssuer,
+    InvalidIssuer, // issuer: api.accounts.firefox.com
     #[error("some other error")]
     Unknown,
 }
@@ -32,10 +33,12 @@ impl From<jsonwebtoken::errors::Error> for TokenError {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Claims {
-    pub sub: String,
-    pub company: String,
+    pub user: String,
+    pub scope: String,
+    pub client_id: String,
     pub iat: i64,
     pub exp: i64,
+    pub issuer: String,
 }
 
 fn read_from_file(path: &str) -> Vec<u8> {
@@ -55,6 +58,15 @@ pub fn verify_jwt_token(token: &str) -> Result<TokenData<Claims>, TokenError> {
     decode::<Claims>(
         &token,
         &DecodingKey::from_rsa_pem(read_from_file(&pubkey_path).as_slice()).unwrap(),
+        &Validation::new(Algorithm::RS256),
+    )
+    .map_err(From::from)
+}
+
+pub fn verify_jwt_token_from_rsa(key: &Key, token: &str) -> Result<TokenData<Claims>, TokenError> {
+    decode::<Claims>(
+        &token,
+        &DecodingKey::from_rsa_components(&key.n, &key.e),
         &Validation::new(Algorithm::RS256),
     )
     .map_err(From::from)
@@ -83,13 +95,16 @@ mod tests {
         static THREE_DAYS: i64 = 60 * 60 * 24 * 3;
         let now = Utc::now().timestamp_nanos() / 1_000_000_000; //nanoseconds -> seconds
         let my_claims = Claims {
-            sub: "dummy_sub".to_string(),
-            company: "dummy_company".to_string(),
+            user: "dummy_user".to_string(),
+            scope: "None".to_string(),
+            client_id: "bhj4".to_string(),
             iat: now,
             exp: now + THREE_DAYS,
+            issuer: "dummy_issuer".to_string(),
         };
 
         let token = generate_token(&my_claims).unwrap();
+        println!("{:?}", token);
 
         match verify_jwt_token(&token) {
             Ok(value) => {
