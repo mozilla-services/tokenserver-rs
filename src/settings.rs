@@ -1,6 +1,6 @@
 //! Application settings objects and initialization
 use config::{Config, ConfigError, Environment, File};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use url::Url;
 
 static DEFAULT_PORT: u16 = 8000;
@@ -15,7 +15,7 @@ static DEFAULT_MAX_TOTAL_BYTES: u32 = 100 * DEFAULT_MAX_POST_BYTES;
 static DEFAULT_MAX_TOTAL_RECORDS: u32 = 100 * DEFAULT_MAX_POST_RECORDS;
 static PREFIX: &str = "tokenserv";
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Settings {
     pub debug: bool,
     pub port: u16,
@@ -33,6 +33,8 @@ pub struct Settings {
     pub statsd_host: Option<String>,
     pub statsd_port: u16,
     pub statsd_label: String,
+    pub privkey_path: String,
+    pub pubkey_path: String,
 }
 
 impl Default for Settings {
@@ -49,6 +51,8 @@ impl Default for Settings {
             statsd_port: 8125,
             statsd_label: "tokenserver".to_string(),
             human_logs: false,
+            privkey_path: "src/private_rsa_key.pem".to_string(),
+            pubkey_path: "src/public_rsa_key.pem".to_string(),
         }
     }
 }
@@ -56,17 +60,8 @@ impl Default for Settings {
 impl Settings {
     /// Load the settings from the config file if supplied, then the environment.
     pub fn with_env_and_config_file(filename: &Option<String>) -> Result<Self, ConfigError> {
-        let mut s = Config::default();
-        // Set our defaults, this can be fixed up drastically later after:
-        // https://github.com/mehcode/config-rs/issues/60
-        s.set_default("debug", false)?;
-        s.set_default("port", i64::from(DEFAULT_PORT))?;
-        s.set_default("host", "127.0.0.1")?;
-        s.set_default("human_logs", false)?;
-        #[cfg(any(test, feature = "db_test"))]
-        s.set_default("database_use_test_transactions", false)?;
-        s.set_default("master_secret", "")?;
-        s.set_default("database_url", "mysql://root@127.0.0.1/tokenstorage")?;
+        let mut s = Config::try_from(&Settings::default())?;
+        // let mut s = Config::new();
         s.set_default("limits.max_post_bytes", i64::from(DEFAULT_MAX_POST_BYTES))?;
         s.set_default(
             "limits.max_post_records",
@@ -85,9 +80,6 @@ impl Settings {
             "limits.max_total_records",
             i64::from(DEFAULT_MAX_TOTAL_RECORDS),
         )?;
-        s.set_default("statsd_host", "localhost")?;
-        s.set_default("statsd_port", 8125)?;
-        s.set_default("statsd_label", "tokenserver")?;
 
         // Merge the config file if supplied
         if let Some(config_filename) = filename {

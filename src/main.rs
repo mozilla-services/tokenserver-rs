@@ -8,7 +8,6 @@ extern crate slog_scope;
 
 #[macro_use]
 pub mod error;
-pub mod config;
 pub mod logging;
 pub mod metrics;
 pub mod server;
@@ -42,6 +41,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .and_then(|d| d.deserialize())
         .unwrap_or_else(|e| e.exit());
     let settings = settings::Settings::with_env_and_config_file(&args.flag_config)?;
+    println!("mainn.rs {:?}", settings.pubkey_path);
     init_logging(!settings.human_logs).expect("Logging failed to initialize");
     debug!("Starting up...");
 
