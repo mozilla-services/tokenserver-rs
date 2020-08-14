@@ -16,7 +16,6 @@ async fn test_index() {
 
     let req = test::TestRequest::get().uri("/1.0/sync/1.5").to_request();
     let res = test::call_service(&mut app, req).await;
-    println!("{:?}", res);
 
     assert_eq!(res.status(), 200, "/1.0/sync/1.5 should return 200");
 }

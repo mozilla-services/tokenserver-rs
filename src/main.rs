@@ -37,6 +37,8 @@ struct Args {
 
 #[actix_rt::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+
+    // Initialize Settings:
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.deserialize())
         .unwrap_or_else(|e| e.exit());
