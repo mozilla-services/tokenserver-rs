@@ -34,7 +34,7 @@ impl From<jsonwebtoken::errors::Error> for TokenError {
 #[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct Claims {
     pub user: String,
-    pub scope: String,
+    pub scope: Option<String>,
     pub client_id: String,
     pub iat: i64,
     pub exp: i64,
@@ -96,7 +96,7 @@ mod tests {
         let now = Utc::now().timestamp_nanos() / 1_000_000_000; //nanoseconds -> seconds
         let my_claims = Claims {
             user: "dummy_user".to_string(),
-            scope: "None".to_string(),
+            scope: Some("None".to_string()),
             client_id: "bhj4".to_string(),
             iat: now,
             exp: now + THREE_DAYS,
