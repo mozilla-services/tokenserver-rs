@@ -1,4 +1,3 @@
-use crate::settings;
 use crate::token::{verify_jwt_token_from_rsa, Claims};
 
 use serde::{Deserialize, Serialize};
@@ -39,10 +38,62 @@ pub struct JWK {
     pub keys: Vec<Key>,
 }
 
-fn scope_matches(scope: &String) -> bool {
-    // TODO: complete function as available at url:
-    // https://github.com/mozilla/PyFxA/blob/53a9b649dd1225a641be95ea2ab3e241533ef562/fxa/_utils.py#L68
+fn scope_matches(provided: Vec<String>, required: Option<Vec<String>>) -> bool {
+    if let Some(required_scopes) = required {
+        for provided_scope in &provided {
+            for required_scope in &required_scopes {
+                if !match_single_scope(&provided_scope, &required_scope) {
+                    return false;
+                }
+            }
+        }
+    }
     true
+}
+
+fn match_single_scope(provided: &str, required: &str) -> bool {
+    let prefix = "https:".to_string();
+    if provided.starts_with(&prefix) {
+        _match_url_scope(provided, required)
+    } else {
+        match_shortname_scope(provided, required)
+    }
+}
+
+fn _match_url_scope(_provided: &str, _required: &str) -> bool {
+    // TODO: Implement the match_url_scope as written here
+    // https://github.com/mozilla/PyFxA/blob/53a9b649dd1225a641be95ea2ab3e241533ef562/fxa/_utils.py#L124
+    // More help for scope matching
+    // https://github.com/mozilla/fxa-auth-server/blob/master/fxa-oauth-server/docs/scopes.md
+    false
+}
+
+fn match_shortname_scope(provided: &str, required: &str) -> bool {
+    let mut prov_names = provided.split(':').collect::<Vec<&str>>();
+    let mut req_names = required.split(':').collect::<Vec<&str>>();
+    // https://stackoverflow.com/questions/26643688/how-do-i-split-a-string-in-rust
+    let wt = &"write";
+    if req_names.last() == Some(wt) {
+        if prov_names.last() != Some(wt) {
+            return false;
+        }
+        prov_names.pop();
+        req_names.pop();
+    } else if prov_names.last() == Some(wt) {
+        prov_names.pop();
+    }
+    if prov_names.len() > req_names.len() {
+        return false;
+    }
+
+    for p in &prov_names {
+        for r in &req_names {
+            if p != r {
+                return false;
+            }
+        }
+    }
+    false
 }
 
 pub fn verify(token: &str, jwks: &JWK) -> Result<Response, ()> {
@@ -59,10 +110,15 @@ pub fn verify(token: &str, jwks: &JWK) -> Result<Response, ()> {
             Err(e) => println!("{:?}", e),
         }
     }
+    let req_scope: Vec<String> = vec![
+        "profile:write".to_string(),
+        "profile:email".to_string(),
+        "profile:email:write".to_string(),
+    ];
 
     if let Some(claims) = my_claims {
         if let Some(ref scope) = claims.scope {
-            if !scope_matches(scope) {
+            if !scope_matches(scope.to_vec(), Some(req_scope)) {
                 return Err(());
             }
         }
@@ -87,9 +143,15 @@ mod tests {
     fn test_jwks() {
         static THREE_DAYS: i64 = 60 * 60 * 24 * 3;
         let now = Utc::now().timestamp_nanos() / 1_000_000_000; //nanoseconds -> seconds
+        let scope_vec: Vec<String> = vec![
+            "profile:write".to_string(),
+            "profile:email".to_string(),
+            "profile:email:write".to_string(),
+        ];
+
         let my_claims = Claims {
             user: "dummy_user".to_string(),
-            scope: Some("None".to_string()),
+            scope: Some(scope_vec),
             client_id: "bhj4".to_string(),
             iat: now,
             exp: now + THREE_DAYS,
