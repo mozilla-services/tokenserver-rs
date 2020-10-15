@@ -109,11 +109,9 @@ mod tests {
         };
 
         let token = generate_token(&my_claims).unwrap();
-        println!("{:?}", token);
 
         match verify_jwt_token(&token) {
             Ok(value) => {
-                println!("{:?}", value.claims);
                 assert!(value.claims == my_claims);
             }
             Err(err) => panic!("error: {}", err),
