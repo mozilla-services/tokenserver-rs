@@ -10,6 +10,7 @@ extern crate slog_scope;
 pub mod error;
 pub mod logging;
 pub mod metrics;
+pub mod oauth;
 pub mod server;
 pub mod settings;
 pub mod tags;
@@ -37,7 +38,6 @@ struct Args {
 
 #[actix_rt::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-
     // Initialize Settings:
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.deserialize())
